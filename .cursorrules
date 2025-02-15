@@ -30,3 +30,4 @@ TypeScript Usage
 - Use TypeScript for all code; prefer interfaces over types.
 - Avoid enums; use maps instead.
 - Use functional components with TypeScript interfaces.
+- commit message should be in the format of "feat: <feature name>" or "fix: <feature name>" or "refactor: <feature name>" or "style: <feature name>" or "test: <feature name>" or "chore: <feature name>"
