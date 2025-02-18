@@ -1,0 +1,7 @@
+## Git Commit Message
+- use 'Feature' for new features
+- use 'Fix' for bug fixes
+- use 'Refactor' for code changes that neither fix a bug nor add a feature
+- use 'Style' for changes that do not affect the meaning of the code (white-space, formatting, etc)
+- use 'Docs' for updating documentation
+- use 'Chore' for updating build tasks, dependencies, etc

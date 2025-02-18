@@ -2,11 +2,11 @@
 
 ## Overall Structure
 
-The app features a tab-based navigation system with four main sections:
+The app is organized with a tab-based navigation system, featuring four main sections:
 
-- **Home**: Displays the next race and an F1 rules guide.
-- **Schedule**: Shows the race calendar with past and upcoming races.
-- **Rankings**: Contains driver and constructor standings.
+- **Home**: Highlights the next race and provides an F1 rules guide.
+- **Schedule**: Displays the race calendar, including past and upcoming races.
+- **Rankings**: Shows driver and constructor standings.
 - **More**: Offers additional menu options and features.
 
 ## Tech Stack
@@ -25,48 +25,53 @@ The app features a tab-based navigation system with four main sections:
 
 ### Home Screen
 
-- Highlights the next race with an image and countdown.
-- Includes an F1 rules guide covering qualifying, points system, and sprint races.
-- Features a clean, dark theme design with F1's signature red (#E10600).
+- **Next Race Highlight**: Displays race name, circuit information, date, and time.
+- **Track Characteristics**: Includes track length, number of corners, DRS zones, top speed, and lap record.
+- **Design**: Utilizes a clean, dark theme with F1's signature red color (#E10600).
 
 ### Schedule Screen
 
-- Provides a complete race calendar listing.
-- Uses visual indicators for completed races with winners.
-- Displays round numbers with distinctive red badges.
-- Offers interactive race cards with chevron indicators.
+- **Race Calendar**: Provides a complete listing of races with status (completed/upcoming).
+- **Visual Indicators**: Marks completed races and displays winners.
 
 ### Rankings Section
 
-- Utilizes Material Top Tabs navigation for Drivers/Constructors.
-- Implements SafeArea with matching header colors.
-- Includes a help icon with a championship rules modal.
-- Supports horizontal swipe transitions between tabs.
-- Shows detailed standings with points and team information.
+- **Driver and Constructor Championships**: Displays detailed standings and championship rules.
 
 ### More Screen
 
-- Features an additional menu with icons.
-- Maintains consistent styling with the app theme.
-- Provides options for rules, track guides, teams, news, and settings.
+- **Features Menu**: Includes race rules, track guides, team information, news, and settings.
 
 ## Technical Implementations
 
-- Proper navigation setup using expo-router.
-- SafeArea handling for different devices.
-- Modal implementation for rules explanation.
-- Consistent styling using StyleSheet.
-- Proper type definitions with TypeScript.
-- Integration of Expo Vector Icons.
-- Linear gradients for visual effects.
+- **Framework**: Built with Expo (SDK 52.0.33).
+- **Routing**: Managed using Expo Router 4.0.17.
+- **UI Components**: Developed with React Native.
+- **Icons**: Integrated using @expo/vector-icons.
+- **Animations**: Implemented with react-native-reanimated.
 
 ## Design Language
 
-- Dark theme with #141414 background.
-- F1 red (#E10600) for accents and primary elements.
-- Consistent card-based UI with #1E1E1E backgrounds.
-- Clear typography hierarchy.
-- Proper spacing and padding.
-- Interactive elements with proper visual feedback.
+- **Theme**: Dark background (#141414) with F1 red accents (#E10600).
+- **UI**: Card-based design with #1E1E1E backgrounds.
+- **Typography**: Clear hierarchy for readability.
+- **Spacing**: Proper padding and spacing for a clean layout.
+- **Interactivity**: Elements provide visual feedback upon interaction.
 
-The app is fully functional with a professional, production-ready design that adheres to F1's branding guidelines while ensuring excellent usability and user experience.
+## Key Components
+
+- **LinearGradient**: Used for image overlay effects.
+- **ScrollView**: Allows for scrollable content.
+- **SafeAreaView**: Manages safe area for different devices.
+- **Animated**: Provides animation effects for transitions.
+- **Modal**: Used for pop-up dialogs.
+
+## Environment Configuration (app.json)
+
+- **App Name**: F1 Race Hub
+- **Version**: 1.0.0
+- **Supported Platforms**: iOS, Android, Web
+- **Bundle ID**: com.f1racehub.app
+- **Icon and Splash Screen Settings**
+
+The app is fully functional and features a professional, production-ready design that aligns with F1's branding guidelines, ensuring excellent usability and user experience.
