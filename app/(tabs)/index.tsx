@@ -1,12 +1,34 @@
-import { ScrollView, View, Text, Image, StyleSheet, Dimensions } from 'react-native';
+import {
+  ScrollView,
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  Dimensions,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 
 const nextRace = {
-  name: "Australian Grand Prix",
-  circuit: "Albert Park Circuit",
-  date: "March 24, 2024",
-  time: "05:00 GMT",
-  image: "https://images.unsplash.com/photo-1647516262110-ef8a5f8af19c?auto=format&fit=crop&q=80&w=1200"
+  name: 'Australian Grand Prix',
+  circuit: 'Albert Park Circuit',
+  date: 'March 24, 2024',
+  time: '05:00 GMT',
+  image:
+    'https://images.unsplash.com/photo-1647516262110-ef8a5f8af19c?auto=format&fit=crop&q=80&w=1200',
+  trackInfo: {
+    length: '5.278 km',
+    turns: 14,
+    lapRecord: '1:20.260 (Charles Leclerc, 2022)',
+    drsZones: 4,
+    topSpeed: '322 km/h',
+    characteristics: [
+      'High-speed sections with flowing corners',
+      'Technical middle sector',
+      'Multiple overtaking opportunities',
+      'Smooth track surface',
+    ],
+  },
 };
 
 export default function HomeScreen() {
@@ -22,39 +44,52 @@ export default function HomeScreen() {
           <Text style={styles.nextRaceLabel}>NEXT RACE</Text>
           <Text style={styles.raceName}>{nextRace.name}</Text>
           <Text style={styles.raceCircuit}>{nextRace.circuit}</Text>
-          <Text style={styles.raceDateTime}>{nextRace.date} - {nextRace.time}</Text>
+          <Text style={styles.raceDateTime}>
+            {nextRace.date} - {nextRace.time}
+          </Text>
         </View>
       </View>
 
-      <View style={styles.rulesSection}>
-        <Text style={styles.sectionTitle}>F1 Rules Guide</Text>
-        
-        <View style={styles.ruleCard}>
-          <Text style={styles.ruleTitle}>Qualifying Format</Text>
-          <Text style={styles.ruleDescription}>
-            Q1: 18-minute session, all 20 cars participate. Bottom 5 eliminated.{'\n'}
-            Q2: 15-minute session for remaining 15 cars. Bottom 5 eliminated.{'\n'}
-            Q3: 12-minute shootout for top 10 cars to determine pole position.
+      <View style={styles.trackSection}>
+        <Text style={styles.sectionTitle}>Track Characteristics</Text>
+
+        <View style={styles.statsGrid}>
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>{nextRace.trackInfo.length}</Text>
+            <Text style={styles.statLabel}>Track Length</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>{nextRace.trackInfo.turns}</Text>
+            <Text style={styles.statLabel}>Corners</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>{nextRace.trackInfo.drsZones}</Text>
+            <Text style={styles.statLabel}>DRS Zones</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>{nextRace.trackInfo.topSpeed}</Text>
+            <Text style={styles.statLabel}>Top Speed</Text>
+          </View>
+        </View>
+
+        <View style={styles.lapRecordCard}>
+          <View style={styles.lapRecordHeader}>
+            <Ionicons name="stopwatch" size={20} color="#E10600" />
+            <Text style={styles.lapRecordTitle}>Lap Record</Text>
+          </View>
+          <Text style={styles.lapRecordValue}>
+            {nextRace.trackInfo.lapRecord}
           </Text>
         </View>
 
-        <View style={styles.ruleCard}>
-          <Text style={styles.ruleTitle}>Points System</Text>
-          <Text style={styles.ruleDescription}>
-            1st: 25 pts | 2nd: 18 pts | 3rd: 15 pts{'\n'}
-            4th: 12 pts | 5th: 10 pts | 6th: 8 pts{'\n'}
-            7th: 6 pts | 8th: 4 pts | 9th: 2 pts | 10th: 1 pt{'\n'}
-            Fastest Lap: +1 point (if finished in top 10)
-          </Text>
-        </View>
-
-        <View style={styles.ruleCard}>
-          <Text style={styles.ruleTitle}>Sprint Race Format</Text>
-          <Text style={styles.ruleDescription}>
-            100km race on Saturday{'\n'}
-            Points: 8-7-6-5-4-3-2-1 for top 8 finishers{'\n'}
-            Sets grid for Sunday's main race
-          </Text>
+        <View style={styles.characteristicsCard}>
+          <Text style={styles.characteristicsTitle}>Key Features</Text>
+          {nextRace.trackInfo.characteristics.map((characteristic, index) => (
+            <View key={index} style={styles.characteristicItem}>
+              <View style={styles.bullet} />
+              <Text style={styles.characteristicText}>{characteristic}</Text>
+            </View>
+          ))}
         </View>
       </View>
     </ScrollView>
@@ -108,7 +143,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
   },
-  rulesSection: {
+  trackSection: {
     padding: 20,
   },
   sectionTitle: {
@@ -117,21 +152,77 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
   },
-  ruleCard: {
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  statCard: {
+    width: '48%',
     backgroundColor: '#1E1E1E',
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
+    alignItems: 'center',
   },
-  ruleTitle: {
+  statValue: {
     color: '#E10600',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: 4,
   },
-  ruleDescription: {
+  statLabel: {
     color: '#FFFFFF',
     fontSize: 14,
-    lineHeight: 20,
+  },
+  lapRecordCard: {
+    backgroundColor: '#1E1E1E',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+  },
+  lapRecordHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  lapRecordTitle: {
+    color: '#E10600',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 8,
+  },
+  lapRecordValue: {
+    color: '#FFFFFF',
+    fontSize: 14,
+  },
+  characteristicsCard: {
+    backgroundColor: '#1E1E1E',
+    borderRadius: 12,
+    padding: 16,
+  },
+  characteristicsTitle: {
+    color: '#E10600',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 12,
+  },
+  characteristicItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  bullet: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#E10600',
+    marginRight: 8,
+  },
+  characteristicText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    flex: 1,
   },
 });

@@ -1,14 +1,25 @@
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { withLayoutContext } from 'expo-router';
 import { useState } from 'react';
-import { View, Text, StyleSheet, Modal, Pressable, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Modal,
+  Pressable,
+  ScrollView,
+  Animated,
+  useWindowDimensions,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter, Slot } from 'expo-router';
 
-const { Navigator, Screen } = createMaterialTopTabNavigator();
-const TopTabs = withLayoutContext(Navigator);
-
-function ChampionshipRulesModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
+function ChampionshipRulesModal({
+  visible,
+  onClose,
+}: {
+  visible: boolean;
+  onClose: () => void;
+}) {
   return (
     <Modal
       animationType="fade"
@@ -25,29 +36,29 @@ function ChampionshipRulesModal({ visible, onClose }: { visible: boolean; onClos
             </Pressable>
           </View>
           <ScrollView style={styles.modalBody}>
-            <Text style={styles.sectionTitle}>Drivers' Championship</Text>
+            <Text style={styles.sectionTitle}>드라이버 챔피언십</Text>
             <Text style={styles.ruleText}>
-              • Points are awarded to drivers who finish in the top 10 positions in each race{'\n'}
-              • Points system: 25-18-15-12-10-8-6-4-2-1{'\n'}
-              • Additional point for fastest lap (if finished in top 10){'\n'}
-              • Driver with the most points at the end of the season wins{'\n'}
-              • In case of a tie, the number of wins is compared, then second places, etc.
+              • 각 레이스에서 상위 10위에 드는 드라이버에게 포인트가 부여됩니다
+              {'\n'}• 포인트 시스템: 25-18-15-12-10-8-6-4-2-1{'\n'}• 상위 10위에
+              들 경우 가장 빠른 랩에 추가 포인트{'\n'}• 시즌 종료 시 가장 많은
+              포인트를 가진 드라이버가 우승{'\n'}• 동점일 경우, 우승 횟수, 그
+              다음으로 2위 횟수 등을 비교합니다.
             </Text>
 
-            <Text style={styles.sectionTitle}>Constructors' Championship</Text>
+            <Text style={styles.sectionTitle}>컨스트럭터 챔피언십</Text>
             <Text style={styles.ruleText}>
-              • Both team cars can score points in each race{'\n'}
-              • Points from both drivers are combined{'\n'}
-              • Same points system as Drivers' Championship{'\n'}
-              • Team with the most points at the end of the season wins{'\n'}
-              • Financial rewards are based on Constructors' Championship position
+              • 팀의 두 차량 모두 각 레이스에서 포인트를 획득할 수 있습니다
+              {'\n'}• 두 드라이버의 포인트가 합산됩니다{'\n'}• 드라이버
+              챔피언십과 동일한 포인트 시스템{'\n'}• 시즌 종료 시 가장 많은
+              포인트를 가진 팀이 우승{'\n'}• 재정적 보상은 컨스트럭터 챔피언십
+              순위에 기반합니다.
             </Text>
 
-            <Text style={styles.sectionTitle}>Sprint Race Points</Text>
+            <Text style={styles.sectionTitle}>스프린트 레이스 포인트</Text>
             <Text style={styles.ruleText}>
-              • Top 8 finishers score points: 8-7-6-5-4-3-2-1{'\n'}
-              • Points count towards both championships{'\n'}
-              • No additional point for fastest lap in sprint races
+              • 상위 8위 피니셔가 포인트를 획득: 8-7-6-5-4-3-2-1{'\n'}• 포인트는
+              두 챔피언십에 모두 반영됩니다{'\n'}• 스프린트 레이스에서는 가장
+              빠른 랩에 추가 포인트가 없습니다.
             </Text>
           </ScrollView>
         </View>
@@ -58,58 +69,89 @@ function ChampionshipRulesModal({ visible, onClose }: { visible: boolean; onClos
 
 export default function RankingsLayout() {
   const [modalVisible, setModalVisible] = useState(false);
+  const [activeTab, setActiveTab] = useState('drivers');
+  const slideAnim = useState(new Animated.Value(0))[0];
+  const router = useRouter();
+  const { width } = useWindowDimensions();
+  const tabWidth = width / 2; // Since we have 2 tabs
+
+  const handleTabPress = (tab: string) => {
+    setActiveTab(tab);
+    router.push(`/rankings/${tab}`);
+    Animated.spring(slideAnim, {
+      toValue: tab === 'drivers' ? 0 : 1,
+      useNativeDriver: true,
+    }).start();
+  };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Championship</Text>
-          <Pressable 
+          <Pressable
             onPress={() => setModalVisible(true)}
             style={styles.helpButton}
           >
             <Ionicons name="help-circle-outline" size={24} color="#FFFFFF" />
           </Pressable>
         </View>
-        <TopTabs
-          screenOptions={{
-            tabBarStyle: {
-              backgroundColor: '#141414',
-              elevation: 0,
-              shadowOpacity: 0,
-              borderBottomWidth: 1,
-              borderBottomColor: '#2A2A2A',
-            },
-            tabBarIndicatorStyle: {
-              backgroundColor: '#E10600',
-              height: 3,
-            },
-            tabBarLabelStyle: {
-              textTransform: 'none',
-              fontSize: 14,
-              fontWeight: 'bold',
-            },
-            tabBarActiveTintColor: '#FFFFFF',
-            tabBarInactiveTintColor: '#999999',
-            animationEnabled: true,
-            swipeEnabled: true,
-          }}>
-          <Screen
-            name="drivers"
-            options={{
-              title: 'Drivers',
-            }}
+
+        <View style={styles.tabBar}>
+          <Pressable
+            style={[styles.tab, activeTab === 'drivers' && styles.activeTab]}
+            onPress={() => handleTabPress('drivers')}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === 'drivers' && styles.activeTabText,
+              ]}
+            >
+              Drivers
+            </Text>
+          </Pressable>
+          <Pressable
+            style={[
+              styles.tab,
+              activeTab === 'constructors' && styles.activeTab,
+            ]}
+            onPress={() => handleTabPress('constructors')}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === 'constructors' && styles.activeTabText,
+              ]}
+            >
+              Constructors
+            </Text>
+          </Pressable>
+          <Animated.View
+            style={[
+              styles.indicator,
+              {
+                width: tabWidth,
+                transform: [
+                  {
+                    translateX: slideAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, tabWidth],
+                    }),
+                  },
+                ],
+              },
+            ]}
           />
-          <Screen
-            name="constructors"
-            options={{
-              title: 'Constructors',
-            }}
-          />
-        </TopTabs>
-        <ChampionshipRulesModal 
-          visible={modalVisible} 
-          onClose={() => setModalVisible(false)} 
+        </View>
+
+        <View style={styles.content}>
+          <Slot />
+        </View>
+
+        <ChampionshipRulesModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
         />
       </View>
     </SafeAreaView>
@@ -140,6 +182,39 @@ const styles = StyleSheet.create({
   },
   helpButton: {
     padding: 4,
+  },
+  tabBar: {
+    flexDirection: 'row',
+    backgroundColor: '#141414',
+    borderBottomWidth: 1,
+    borderBottomColor: '#2A2A2A',
+    position: 'relative',
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  activeTab: {
+    backgroundColor: 'transparent',
+  },
+  tabText: {
+    color: '#999999',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  activeTabText: {
+    color: '#FFFFFF',
+  },
+  indicator: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    height: 3,
+    backgroundColor: '#E10600',
+  },
+  content: {
+    flex: 1,
   },
   modalOverlay: {
     flex: 1,
