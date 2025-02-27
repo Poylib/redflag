@@ -1,17 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import {
-  ScrollView,
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
+import { ScrollView, View, Text, Image, StyleSheet, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, {
-  useAnimatedStyle,
-  withRepeat,
+import Animated, { 
+  useAnimatedStyle, 
+  withRepeat, 
   withSequence,
   withTiming,
   useSharedValue,
@@ -22,24 +15,24 @@ const now = new Date();
 const createTestSchedule = () => {
   const currentHour = now.getHours();
   const currentMinute = now.getMinutes();
-
+  
   // 현재 시간 기준으로 세션 시간 설정
   const startTime = new Date(now);
   startTime.setMinutes(currentMinute - 15); // 15분 전에 시작
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('ko-KR', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
+    return date.toLocaleTimeString('ko-KR', { 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      hour12: false 
     });
   };
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('ko-KR', {
-      month: 'long',
+    return date.toLocaleDateString('ko-KR', { 
+      month: 'long', 
       day: 'numeric',
-      weekday: 'long',
+      weekday: 'long'
     });
   };
 
@@ -47,56 +40,55 @@ const createTestSchedule = () => {
     practice1: {
       day: formatDate(startTime),
       time: formatTime(startTime),
-      duration: 60,
+      duration: 60
     },
     practice2: {
       day: formatDate(now),
       time: formatTime(now),
-      duration: 60,
+      duration: 60
     },
     practice3: {
       day: formatDate(now),
       time: formatTime(new Date(now.getTime() + 60 * 60 * 1000)),
-      duration: 60,
+      duration: 60
     },
     qualifying: {
       day: formatDate(new Date(now.getTime() + 24 * 60 * 60 * 1000)),
-      time: '15:00',
-      duration: 60,
+      time: "15:00",
+      duration: 60
     },
     race: {
       day: formatDate(new Date(now.getTime() + 48 * 60 * 60 * 1000)),
-      time: '15:00',
-      duration: 120,
-    },
+      time: "15:00",
+      duration: 120
+    }
   };
 };
 
 const nextRace = {
-  name: 'Japanese Grand Prix',
-  circuit: 'Suzuka Circuit',
-  date: now.toLocaleDateString('ko-KR', {
-    month: 'long',
+  name: "Japanese Grand Prix",
+  circuit: "Suzuka Circuit",
+  date: now.toLocaleDateString('ko-KR', { 
+    month: 'long', 
     day: 'numeric',
-    weekday: 'long',
+    weekday: 'long'
   }),
-  time: '15:00',
-  image:
-    'https://images.unsplash.com/photo-1647516262110-ef8a5f8af19c?auto=format&fit=crop&q=80&w=1200',
+  time: "15:00",
+  image: "https://images.unsplash.com/photo-1647516262110-ef8a5f8af19c?auto=format&fit=crop&q=80&w=1200",
   schedule: createTestSchedule(),
   trackInfo: {
-    length: '5.807 km',
+    length: "5.807 km",
     turns: 18,
-    lapRecord: '1:30.983 (Lewis Hamilton, 2019)',
+    lapRecord: "1:30.983 (Lewis Hamilton, 2019)",
     drsZones: 2,
-    topSpeed: '330 km/h',
+    topSpeed: "330 km/h",
     characteristics: [
       "Technical first sector with 'S' curves",
-      'High-speed flowing sections',
-      'Challenging 130R corner',
-      'Unique figure-8 layout',
-    ],
-  },
+      "High-speed flowing sections",
+      "Challenging 130R corner",
+      "Unique figure-8 layout"
+    ]
+  }
 };
 
 interface SessionItemProps {
@@ -109,11 +101,7 @@ interface SessionItemProps {
   isRace?: boolean;
 }
 
-const AnimatedSessionItem: React.FC<SessionItemProps> = ({
-  session,
-  isActive,
-  isRace,
-}) => {
+const AnimatedSessionItem: React.FC<SessionItemProps> = ({ session, isActive, isRace }) => {
   const opacity = useSharedValue(1);
   const scale = useSharedValue(1);
 
@@ -148,26 +136,20 @@ const AnimatedSessionItem: React.FC<SessionItemProps> = ({
   }));
 
   return (
-    <Animated.View
-      style={[
-        styles.scheduleItem,
-        isActive && styles.activeSession,
-        isRace && styles.raceSession,
-        isRace && isActive && styles.activeRaceSession,
-        animatedStyle,
-      ]}
-    >
+    <Animated.View style={[
+      styles.scheduleItem,
+      isActive && styles.activeSession,
+      isRace && styles.raceSession,
+      isRace && isActive && styles.activeRaceSession,
+      animatedStyle
+    ]}>
       <View style={styles.sessionInfo}>
         <View style={styles.sessionNameContainer}>
-          <Text
-            style={[
-              styles.sessionName,
-              isActive && styles.activeSessionText,
-              isRace && styles.raceSessionText,
-            ]}
-          >
-            {session.name}
-          </Text>
+          <Text style={[
+            styles.sessionName,
+            isActive && styles.activeSessionText,
+            isRace && styles.raceSessionText,
+          ]}>{session.name}</Text>
           {isRace && (
             <View style={styles.raceIndicator}>
               <Ionicons name="flag" size={16} color="#FFD700" />
@@ -177,56 +159,43 @@ const AnimatedSessionItem: React.FC<SessionItemProps> = ({
         <Text style={styles.sessionDay}>{session.day}</Text>
       </View>
       <View style={styles.sessionTimeContainer}>
-        <Text
-          style={[
-            styles.sessionTime,
-            isActive && styles.activeSessionText,
-            isRace && styles.raceSessionText,
-          ]}
-        >
-          {session.time}
-        </Text>
+        <Text style={[
+          styles.sessionTime,
+          isActive && styles.activeSessionText,
+          isRace && styles.raceSessionText,
+        ]}>{session.time}</Text>
       </View>
     </Animated.View>
   );
 };
 
-const isSessionActive = (session: {
-  day: string;
-  time: string;
-  duration: number;
-}) => {
+const isSessionActive = (session: { day: string; time: string; duration: number }) => {
   const now = new Date();
   const [hours, minutes] = session.time.split(':').map(Number);
-
+  
   const sessionStart = new Date(now);
   sessionStart.setHours(hours, minutes, 0);
-
-  if (
-    session.day !==
-    now.toLocaleDateString('ko-KR', {
-      month: 'long',
-      day: 'numeric',
-      weekday: 'long',
-    })
-  ) {
+  
+  if (session.day !== now.toLocaleDateString('ko-KR', { 
+    month: 'long', 
+    day: 'numeric',
+    weekday: 'long'
+  })) {
     return false;
   }
-
-  const sessionEnd = new Date(
-    sessionStart.getTime() + session.duration * 60000
-  );
+  
+  const sessionEnd = new Date(sessionStart.getTime() + session.duration * 60000);
   return now >= sessionStart && now <= sessionEnd;
 };
 
 export default function HomeScreen() {
   const [currentTime, setCurrentTime] = useState(new Date());
-
+  
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
-
+    
     return () => clearInterval(timer);
   }, []);
 
@@ -235,7 +204,7 @@ export default function HomeScreen() {
     { name: 'Practice 2', ...nextRace.schedule.practice2 },
     { name: 'Practice 3', ...nextRace.schedule.practice3 },
     { name: 'Qualifying', ...nextRace.schedule.qualifying },
-    { name: 'Race', ...nextRace.schedule.race },
+    { name: 'Race', ...nextRace.schedule.race }
   ];
 
   return (
@@ -250,9 +219,7 @@ export default function HomeScreen() {
           <Text style={styles.nextRaceLabel}>NEXT RACE</Text>
           <Text style={styles.raceName}>{nextRace.name}</Text>
           <Text style={styles.raceCircuit}>{nextRace.circuit}</Text>
-          <Text style={styles.raceDateTime}>
-            {nextRace.date} {nextRace.time}
-          </Text>
+          <Text style={styles.raceDateTime}>{nextRace.date} {nextRace.time}</Text>
         </View>
       </View>
 
@@ -272,7 +239,7 @@ export default function HomeScreen() {
 
       <View style={styles.trackSection}>
         <Text style={styles.sectionTitle}>Track Characteristics</Text>
-
+        
         <View style={styles.statsGrid}>
           <View style={styles.statCard}>
             <Text style={styles.statValue}>{nextRace.trackInfo.length}</Text>
@@ -297,9 +264,7 @@ export default function HomeScreen() {
             <Ionicons name="stopwatch" size={20} color="#E10600" />
             <Text style={styles.lapRecordTitle}>Lap Record</Text>
           </View>
-          <Text style={styles.lapRecordValue}>
-            {nextRace.trackInfo.lapRecord}
-          </Text>
+          <Text style={styles.lapRecordValue}>{nextRace.trackInfo.lapRecord}</Text>
         </View>
 
         <View style={styles.characteristicsCard}>

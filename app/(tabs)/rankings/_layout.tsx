@@ -1,25 +1,65 @@
-import { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Modal,
-  Pressable,
-  ScrollView,
-  Animated,
-  useWindowDimensions,
-} from 'react-native';
+import { useState, useCallback } from 'react';
+import { View, Text, StyleSheet, Modal, Pressable, ScrollView, Animated, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, Slot } from 'expo-router';
+import { createContext, useContext } from 'react';
 
-function ChampionshipRulesModal({
-  visible,
-  onClose,
-}: {
-  visible: boolean;
-  onClose: () => void;
-}) {
+// Rankings context types
+export interface DriverRanking {
+  id: string;
+  position: number;
+  points: number;
+  year: number;
+  driver: {
+    id: string;
+    name: string;
+    team_id: string;
+    team: {
+      name: string;
+    };
+  };
+}
+
+export interface TeamRanking {
+  id: string;
+  position: number;
+  points: number;
+  year: number;
+  team: {
+    id: string;
+    name: string;
+    full_team_name: string;
+  };
+}
+
+interface RankingsContextType {
+  driverRankings: DriverRanking[];
+  teamRankings: TeamRanking[];
+  setDriverRankings: (rankings: DriverRanking[]) => void;
+  setTeamRankings: (rankings: TeamRanking[]) => void;
+  isLoading: boolean;
+  setIsLoading: (loading: boolean) => void;
+  error: string | null;
+  setError: (error: string | null) => void;
+  activeTab: string;
+}
+
+export const RankingsContext = createContext<RankingsContextType>({
+  driverRankings: [],
+  teamRankings: [],
+  setDriverRankings: () => {},
+  setTeamRankings: () => {},
+  isLoading: true,
+  setIsLoading: () => {},
+  error: null,
+  setError: () => {},
+  activeTab: 'drivers',
+});
+
+export const useRankings = () => useContext(RankingsContext);
+
+function ChampionshipRulesModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   return (
     <Modal
       animationType="fade"
@@ -36,29 +76,29 @@ function ChampionshipRulesModal({
             </Pressable>
           </View>
           <ScrollView style={styles.modalBody}>
-            <Text style={styles.sectionTitle}>드라이버 챔피언십</Text>
+            <Text style={styles.sectionTitle}>Drivers' Championship</Text>
             <Text style={styles.ruleText}>
-              • 각 레이스에서 상위 10위에 드는 드라이버에게 포인트가 부여됩니다
-              {'\n'}• 포인트 시스템: 25-18-15-12-10-8-6-4-2-1{'\n'}• 상위 10위에
-              들 경우 가장 빠른 랩에 추가 포인트{'\n'}• 시즌 종료 시 가장 많은
-              포인트를 가진 드라이버가 우승{'\n'}• 동점일 경우, 우승 횟수, 그
-              다음으로 2위 횟수 등을 비교합니다.
+              • Points are awarded to drivers who finish in the top 10 positions in each race{'\n'}
+              • Points system: 25-18-15-12-10-8-6-4-2-1{'\n'}
+              • Additional point for fastest lap (if finished in top 10){'\n'}
+              • Driver with the most points at the end of the season wins{'\n'}
+              • In case of a tie, the number of wins is compared, then second places, etc.
             </Text>
 
-            <Text style={styles.sectionTitle}>컨스트럭터 챔피언십</Text>
+            <Text style={styles.sectionTitle}>Constructors' Championship</Text>
             <Text style={styles.ruleText}>
-              • 팀의 두 차량 모두 각 레이스에서 포인트를 획득할 수 있습니다
-              {'\n'}• 두 드라이버의 포인트가 합산됩니다{'\n'}• 드라이버
-              챔피언십과 동일한 포인트 시스템{'\n'}• 시즌 종료 시 가장 많은
-              포인트를 가진 팀이 우승{'\n'}• 재정적 보상은 컨스트럭터 챔피언십
-              순위에 기반합니다.
+              • Both team cars can score points in each race{'\n'}
+              • Points from both drivers are combined{'\n'}
+              • Same points system as Drivers' Championship{'\n'}
+              • Team with the most points at the end of the season wins{'\n'}
+              • Financial rewards are based on Constructors' Championship position
             </Text>
 
-            <Text style={styles.sectionTitle}>스프린트 레이스 포인트</Text>
+            <Text style={styles.sectionTitle}>Sprint Race Points</Text>
             <Text style={styles.ruleText}>
-              • 상위 8위 피니셔가 포인트를 획득: 8-7-6-5-4-3-2-1{'\n'}• 포인트는
-              두 챔피언십에 모두 반영됩니다{'\n'}• 스프린트 레이스에서는 가장
-              빠른 랩에 추가 포인트가 없습니다.
+              • Top 8 finishers score points: 8-7-6-5-4-3-2-1{'\n'}
+              • Points count towards both championships{'\n'}
+              • No additional point for fastest lap in sprint races
             </Text>
           </ScrollView>
         </View>
@@ -73,88 +113,95 @@ export default function RankingsLayout() {
   const slideAnim = useState(new Animated.Value(0))[0];
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const tabWidth = width / 2; // Since we have 2 tabs
+  const tabWidth = width / 2;
 
-  const handleTabPress = (tab: string) => {
+  // Rankings state with memoized setters
+  const [driverRankings, setDriverRankings] = useState<DriverRanking[]>([]);
+  const [teamRankings, setTeamRankings] = useState<TeamRanking[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleTabPress = useCallback((tab: string) => {
     setActiveTab(tab);
     router.push(`/rankings/${tab}`);
     Animated.spring(slideAnim, {
       toValue: tab === 'drivers' ? 0 : 1,
       useNativeDriver: true,
     }).start();
-  };
+  }, [router, slideAnim]);
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Championship</Text>
-          <Pressable
-            onPress={() => setModalVisible(true)}
-            style={styles.helpButton}
-          >
-            <Ionicons name="help-circle-outline" size={24} color="#FFFFFF" />
-          </Pressable>
-        </View>
-
-        <View style={styles.tabBar}>
-          <Pressable
-            style={[styles.tab, activeTab === 'drivers' && styles.activeTab]}
-            onPress={() => handleTabPress('drivers')}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === 'drivers' && styles.activeTabText,
-              ]}
+    <RankingsContext.Provider
+      value={{
+        driverRankings,
+        teamRankings,
+        setDriverRankings,
+        setTeamRankings,
+        isLoading,
+        setIsLoading,
+        error,
+        setError,
+        activeTab,
+      }}
+    >
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Championship</Text>
+            <Pressable 
+              onPress={() => setModalVisible(true)}
+              style={styles.helpButton}
             >
-              Drivers
-            </Text>
-          </Pressable>
-          <Pressable
-            style={[
-              styles.tab,
-              activeTab === 'constructors' && styles.activeTab,
-            ]}
-            onPress={() => handleTabPress('constructors')}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === 'constructors' && styles.activeTabText,
-              ]}
+              <Ionicons name="help-circle-outline" size={24} color="#FFFFFF" />
+            </Pressable>
+          </View>
+          
+          <View style={styles.tabBar}>
+            <Pressable
+              style={[styles.tab, activeTab === 'drivers' && styles.activeTab]}
+              onPress={() => handleTabPress('drivers')}
             >
-              Constructors
-            </Text>
-          </Pressable>
-          <Animated.View
-            style={[
-              styles.indicator,
-              {
-                width: tabWidth,
-                transform: [
-                  {
+              <Text style={[
+                styles.tabText,
+                activeTab === 'drivers' && styles.activeTabText
+              ]}>Drivers</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.tab, activeTab === 'constructors' && styles.activeTab]}
+              onPress={() => handleTabPress('constructors')}
+            >
+              <Text style={[
+                styles.tabText,
+                activeTab === 'constructors' && styles.activeTabText
+              ]}>Constructors</Text>
+            </Pressable>
+            <Animated.View 
+              style={[
+                styles.indicator,
+                {
+                  width: tabWidth,
+                  transform: [{
                     translateX: slideAnim.interpolate({
                       inputRange: [0, 1],
-                      outputRange: [0, tabWidth],
-                    }),
-                  },
-                ],
-              },
-            ]}
+                      outputRange: [0, tabWidth]
+                    })
+                  }]
+                }
+              ]} 
+            />
+          </View>
+
+          <View style={styles.content}>
+            <Slot />
+          </View>
+
+          <ChampionshipRulesModal 
+            visible={modalVisible} 
+            onClose={() => setModalVisible(false)} 
           />
         </View>
-
-        <View style={styles.content}>
-          <Slot />
-        </View>
-
-        <ChampionshipRulesModal
-          visible={modalVisible}
-          onClose={() => setModalVisible(false)}
-        />
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </RankingsContext.Provider>
   );
 }
 
